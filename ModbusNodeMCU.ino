@@ -31,13 +31,16 @@ bool OTAupdateStarted = false;
 
 ////********************************************************************************************
 void OTA() {
-
+#ifdef MBDebug	
 	Serial.println("Booting");
 	Serial.println("Update mode running");
+#endif
 	WiFi.mode(WIFI_STA);
 	WiFi.begin("WALTERMARCHEWKA", "Molly11315110");
 	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+#ifdef MBDebug	
 		Serial.println("Connection Failed! Rebooting...");
+#endif
 		delay(5000);
 		ESP.restart();
 	}
@@ -52,25 +55,34 @@ void OTA() {
 	//ArduinoOTA.setPassword((const char *)"123");
 
 	ArduinoOTA.onStart([]() {
+#ifdef MBDebug 
 		Serial.println("Start");
+#endif
+
 		led3.Update();
 		OTAupdateStarted = true;
 	});
 	ArduinoOTA.onEnd([]() {
 		led3.Off();
+#ifdef MBDebug 
 		Serial.println("End");
 		Serial.println("Restarting...");
+#endif
 		EEPROM.write(0, 0);
 		EEPROM.commit();
 		ESP.restart();
 	});
 	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
 		led3.Update();
+#ifdef MBDebug 
 		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+#endif
 	});
 	ArduinoOTA.onError([](ota_error_t error) {
 		led3.Update();
+#ifdef MBDebug 
 		Serial.printf("Error[%u]: ", error);
+#endif
 		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
 		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
 		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
@@ -79,9 +91,11 @@ void OTA() {
 		ESP.restart();
 	});
 	ArduinoOTA.begin();
+#ifdef MBDebug 
 	Serial.println("Ready for OTA update");
 	Serial.print("IP address: ");
 	Serial.println(WiFi.localIP());
+#endif
 }
 //*******************************************************************************
 void setup() {
@@ -111,11 +125,13 @@ void setup() {
 
 	UpdateMode = EEPROM.read(0);
 	softwareVersion = CheckVersion();
+	#ifdef MBDebug 
 	Serial.print("\n\r");
 	Serial.print("App version ");
 	Serial.println(softwareVersion);
 	Serial.print("Chip ID-");
 	Serial.println(ESP.getChipId());
+#endif
 
 
 	if (UpdateMode) {
@@ -145,11 +161,15 @@ void loop() {
 		if ( (currentMillis - previousMillis >= 1000) & !OTAupdateStarted ) {
 			previousMillis = currentMillis;
 			OTAsecondsCounter++;
+			#ifdef MBDebug 
 			Serial.print("Waiting for update for ");
 			Serial.print(OTAsecondsCounter);
 			Serial.println(" seconds");
+			#endif
 			if (OTAsecondsCounter >= 60) {
+				#ifdef	MBDebug
 				Serial.println("Rebooting due to no update");
+				#endif
 				EEPROM.write(0, 0);   //write 0 to startup in run mode
 				EEPROM.commit();
 				ESP.restart(); 
@@ -245,14 +265,14 @@ long CheckVersion() {
 
 	timeSnapshot = now();
 
-	Serial.print("time is epoch ");
-	Serial.println(timeSnapshot);
+	//Serial.print("time is epoch ");
+	//Serial.println(timeSnapshot);
 
-	Serial.print("saved epoch ");
-	Serial.println(savedEpoch);
+	//Serial.print("saved epoch ");
+	//Serial.println(savedEpoch);
 
-	Serial.print("Old software version ");
-	Serial.println(softwareVersion);
+	//Serial.print("Old software version ");
+	//Serial.println(softwareVersion);
 
 
 	if (timeSnapshot > savedEpoch) {
@@ -261,8 +281,8 @@ long CheckVersion() {
 		EEPROMWritelong(3, timeSnapshot);
 		EEPROM.write(7, newSoftwareVersion);
 		EEPROM.commit();
-		Serial.print("New version ");
-		Serial.println(newSoftwareVersion);
+		//Serial.print("New version ");
+		//Serial.println(newSoftwareVersion);
 	}
 	else {
 
