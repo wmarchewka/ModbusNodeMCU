@@ -138,7 +138,7 @@ void setup() {
 		OTA();
 	}
 	else {
-		Mb.begin("WALTERMARCHEWKA", "Molly11315110", ip, gateway, subnet);
+		Mb.begin("***", "***", ip, gateway, subnet);
 		for (int x = 0; x < 20; x++) {
 			Mb.MBHoldingRegister[x] = x;
 		}
