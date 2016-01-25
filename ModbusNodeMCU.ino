@@ -36,7 +36,7 @@ void OTA() {
 	Serial.println("Update mode running");
 #endif
 	WiFi.mode(WIFI_STA);
-	WiFi.begin("WALTERMARCHEWKA", "Molly11315110");
+	WiFi.begin("***", "***");
 	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
 #ifdef MBDebug	
 		Serial.println("Connection Failed! Rebooting...");
